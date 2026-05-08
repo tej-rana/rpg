@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1021290433498",
+    "project_id": "tej-rpg",
+    "storage_bucket": "tej-rpg.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1021290433498:android:c6c234f9a73050889b8ee3",
+        "android_client_info": {
+          "package_name": "com.example.rpg"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVg7oACopAhwOKsygnIjfRUVTn3Jwcwj4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
