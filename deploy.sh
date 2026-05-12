@@ -1,4 +1,4 @@
-export RELEASE="0.0.0"
+export RELEASE="0.0.1"
 export BUCKET_NAME="rpg.hoopers.live"
 
 rm -rf ./build/web

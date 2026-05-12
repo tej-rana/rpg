@@ -1,0 +1,47 @@
+name: Build & Deploy Web
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ap-southeast-2
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: rpg.hoopers.live
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.7'
+      - name: Parse Version
+        id: version
+        run: |  
+          version=$(grep '^version:' pubspec.yaml | cut -d ' ' -f 2 | cut -d '+' -f 1)
+          echo "VERSION=$version" >> $GITHUB_OUTPUT
+      - name: Build Flutter Web
+        run: |  
+          flutter build web --release --base-href /${{ steps.version.outputs.VERSION }}/
+      - name: Move build to versioned folder
+        run: |
+          mkdir -p build/web_output/${{ steps.version.outputs.VERSION }}
+          mv build/web/* build/web_output/${{ steps.version.outputs.VERSION }}/
+          mv build/web_output/${{ steps.version.outputs.VERSION }}/index.html build/web_output/index.html
+          echo "{\"version\": \"${{ steps.version.outputs.VERSION }}\"}" > build/web_output/version.json
+      - name: Deploy to S3
+        run: |
+          aws s3 cp build/web_output/${{ steps.version.outputs.VERSION }}/ s3://$AWS_S3_BUCKET/${{ steps.version.outputs.VERSION }}/ \
+          --recursive \
+          --cache-control "max-age=31536000, immutable"
+          
+          aws s3 cp build/web_output/index.html s3://$AWS_S3_BUCKET/index.html \
+          --cache-control "max-age=0, no-cache, no-store, must-revalidate"
+          
+          aws s3 cp build/web_output/version.json s3://$AWS_S3_BUCKET/version.json \
+          --cache-control "max-age=0, no-cache, no-store, must-revalidate"   
